@@ -37,7 +37,6 @@ public class Simulatore {
 		return flow*24*60*60;
 	}
 	
-	
 	public void init (double k, River river){
 		
 		this.F_med = this.convertToSeconds(river.getFlowAvg());
