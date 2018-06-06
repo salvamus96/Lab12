@@ -33,18 +33,17 @@ public class Simulatore {
 		}
 	}
 	
-	public double convertToSeconds (double flow) {
+	public double convertToDay (double flow) {
 		return flow*24*60*60;
 	}
 	
 	public void init (double k, River river){
 		
-		this.F_med = this.convertToSeconds(river.getFlowAvg());
+		this.F_med = this.convertToDay(river.getFlowAvg());
 		this.Q = k * F_med * 30;
 		this.C_in = Q / 2;
 		this.F_out_min = 0.8 * F_med;
 		this.F_in = 0;
-		this.F_out = 0;
 		
 		this.bacino = new ArrayList<>();
 		this.queue = new LinkedList<>();
@@ -63,15 +62,16 @@ public class Simulatore {
 		System.out.println("Capienza totale del bacino idrico " + Q);
 		
 		while ((e = this.queue.poll()) != null) {
-			F_out = 0;
+			F_out = 0.0;
 			this.F_in = e.flow.getFlow();
-			this.C_in += this.convertToSeconds((this.F_in));
+			this.C_in += this.convertToDay((this.F_in));
 			
 			// tracimazione
 			if (this.C_in > this.Q) {
-				this.F_out += (this.C_in - this.Q);
+			//	this.F_out += (this.C_in - this.Q);
 				this.C_in = this.Q;
 			}
+			
 			
 			// calcolo della F_out
 			if (Math.random() <= 0.05) 
@@ -79,16 +79,20 @@ public class Simulatore {
 			else
 				this.F_out += this.F_out_min;			
 			
-			// diminuzione della portata presente nel bacino di un valore pari a F_out
-			this.C_in -= this.F_out;
 			
-			if (this.C_in < 0) {
-				this.C_in = 0;
-				this.N_giorni ++;
+			if (C_in < F_out) {
+				// Non riesco a garantire la quantità minima.
+				N_giorni++;
+				// Il bacino comunque si svuota
+				C_in = 0;
+			} else {
+				// Faccio uscire la quantità giornaliera
+				C_in -= F_out;
 			}
 			
+			// Mantengo un lista della capacità giornaliere del bacino
 			this.bacino.add(this.C_in);
-			
+
 		}
 		
 	}
@@ -101,8 +105,8 @@ public class Simulatore {
 		double sum = 0;
 		for (Double d : this.bacino)
 			sum += d;
-			
-		return sum / bacino.size();
+		
+		return (sum / bacino.size());
 	}
 	
 	
