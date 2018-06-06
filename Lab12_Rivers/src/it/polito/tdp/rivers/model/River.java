@@ -3,19 +3,24 @@ package it.polito.tdp.rivers.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.polito.tdp.rivers.db.RiversDAO;
+
 public class River {
+	
 	private int id;
 	private String name;
-	private double flowAvg;
 	private List<Flow> flows;
 	
-	public River(int id) {
-		this.id = id;
-	}
+	private RiversDAO rdao;
+	
 
 	public River(int id, String name) {
 		this.id = id;
 		this.name = name;
+		
+		this.rdao = new RiversDAO();
+		this.flows = rdao.getFlowFromRiver(this);
+		
 	}
 
 	public String getName() {
@@ -35,11 +40,10 @@ public class River {
 	}
 	
 	public double getFlowAvg() {
-		return flowAvg;
-	}
-
-	public void setFlowAvg(double flowAvg) {
-		this.flowAvg = flowAvg;
+		double sum = 0;
+		for (Flow f : flows)
+			sum += f.getFlow();
+		return (sum / flows.size());
 	}
 
 	public void setFlows(List<Flow> flows) {
